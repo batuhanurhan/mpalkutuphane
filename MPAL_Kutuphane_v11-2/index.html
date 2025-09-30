@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>MPAL Kütüphane</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Commissioner:wght@400;500;600&family=Instrument+Serif:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://openlibrary.org">
+<link rel="preconnect" href="https://covers.openlibrary.org">
+<style>
+:root{
+  --bg:#f5f2ee; --ink:#1b1c1f; --muted:#6c6e75;
+  --card:#ffffff; --ring:#e3e0dc; --accent:#0f172a;
+  --chip:#111111;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px 'Commissioner', ui-sans-serif, system-ui, Segoe UI, Roboto, Helvetica, Arial}
+a{color:inherit}
+.header{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:16px;max-width:1200px;margin:28px auto 24px;padding:0 16px;
+}
+.brand{display:flex;gap:12px;align-items:center}
+/* === LOGO tamamen dolsun (beyaz pay yok) === */
+.logoWrap{
+  width:72px;height:72px;border-radius:999px;border:1px solid var(--ring);
+  background:transparent url('logo.png') center/cover no-repeat; /* cover ile daireyi tam doldur */
+  overflow:hidden;
+}
+.brand h1{font-family:'Instrument Serif', serif;font-size:20px;line-height:1.15;margin:0;font-weight:600;letter-spacing:.15px}
+
+/* === Arama biraz daha GENİŞ === */
+.search{flex:1;display:flex;justify-content:center}
+.search input{
+  width:640px;max-width:78vw;background:#fff;border:1px solid var(--ring);
+  border-radius:999px;padding:10px 14px 10px 48px;outline:none;
+  font-size:16px;box-shadow:0 2px 0 rgba(0,0,0,.02) inset;position:relative;
+}
+.searchBox{position:relative}
+.searchBox img{position:absolute;left:12px;top:9px;width:24px;height:24px;opacity:.7}
+
+/* === + İKONU biraz daha KÜÇÜK === */
+.actions{display:grid;place-items:center}
+.iconbtn{
+  width:36px;height:36px;border-radius:999px;border:1px solid var(--ring);
+  background:#fff;display:grid;place-items:center;cursor:pointer
+}
+.iconbtn:hover{background:#fafafa}
+.iconbtn img{width:18px;height:18px;opacity:.9}
+
+.hero{max-width:1200px;margin:0 auto 20px;padding:0 16px}
+.hero h2{font-size:36px;margin:6px 0 0 0;font-weight:600}
+.section{max-width:1200px;margin:26px auto; padding:0 16px}
+.section-title{font-size:18px;margin:8px 0 12px 0;color:#2b2d33;font-weight:600}
+.card{background:var(--card);border:1px solid var(--ring);border-radius:12px;overflow:hidden;transition:.08s transform, .2s box-shadow;min-width:180px}
+.card:hover{transform:translateY(-2px); box-shadow:0 6px 18px rgba(0,0,0,.06)}
+.cover{width:100%;height:220px;object-fit:cover;display:block;background:#ddd}
+.meta{padding:10px 12px}
+.title{font-weight:500;font-size:15px;margin:0}
+.author{font-size:13px;color:var(--muted);margin-top:2px}
+.footer{display:flex;align-items:center;justify-content:space-between;margin-top:8px}
+.badge{font-size:12px;padding:3px 8px;border-radius:999px;border:1px solid #000;background:#000;color:#fff}
+.status{font-size:12px;padding:3px 8px;border-radius:999px;border:1px dashed #7f1d1d;color:#7f1d1d;background:#fff7f7}
+.chip{font-size:12px;padding:2px 7px;border-radius:999px;background:#111;color:#fff;border:1px solid #000}
+.rail{display:flex;gap:14px;overflow-x:auto;padding-bottom:6px;scroll-snap-type:x proximity}
+.rail .card{scroll-snap-align:start}
+.rail::-webkit-scrollbar{height:8px}
+.rail::-webkit-scrollbar-thumb{background:#d8d6d2;border-radius:999px}
+.modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.35);padding:16px;z-index:50}
+.panel{background:#fff;border:1px solid var(--ring);border-radius:14px;max-width:920px;width:100%;padding:14px}
+label{font-size:12px;color:#50525a;display:block;margin-bottom:4px}
+input,button,select{font:inherit}
+input[type=text],input[type=password],select{
+  width:100%;padding:10px 12px;border-radius:10px;background:#fff;border:1px solid var(--ring);color:#1b1c1f;outline:none
+}
+button{cursor:pointer;border-radius:10px;border:1px solid var(--ring);background:#fff;color:#1b1c1f;padding:10px 12px}
+button.primary{background:#111827;color:#fff;border-color:#111827}
+button.ghost{background:#fff}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.loan{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px}
+.toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#111827;border:1px solid #0b1020;color:#fff;padding:10px 14px;border-radius:12px;display:none;z-index:100}
+.help{color:#6b7280;font-size:12px}
+@media (max-width:700px){
+  .hero h2{font-size:28px}
+  .row,.row3{grid-template-columns:1fr}
+  .search input{max-width:100%}
+}
+</style>
+</head>
+<body>
+<header class="header">
+  <div class="brand">
+    <div class="logoWrap"></div>
+    <h1>MEHMET PİSAK ANADOLU LİSESİ<br/>KÜTÜPHANESİ</h1>
+  </div>
+  <div class="search">
+    <div class="searchBox">
+      <img src="icon-search.png" alt="Ara">
+      <input id="q" type="text" placeholder="Ara" />
+    </div>
+  </div>
+  <div class="actions">
+    <button class="iconbtn" id="btnAdd" title="Kitap Ekle">
+      <img src="icon-add.png" alt="Ekle">
+    </button>
+  </div>
+</header>
+
+<section class="hero">
+  <h2>Hoş geldin!<br/>Bugün ne okuyacaksın?</h2>
+</section>
+
+<section class="section" id="secFeatured">
+  <div class="section-title">Önerilerimiz:</div>
+  <div class="rail" id="railFeatured"></div>
+</section>
+
+<div id="genreSections"></div>
+
+<section class="section" id="secSearch" style="display:none">
+  <div class="section-title">Arama sonuçları</div>
+  <div class="rail" id="railSearch"></div>
+</section>
+
+<div class="modal" id="modalAdd">
+  <div class="panel">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+      <strong id="modalTitle">Kitap Ekle</strong>
+      <button id="btnCloseAdd" class="ghost">Kapat</button>
+    </div>
+    <input id="book_id" type="hidden"/>
+    <div class="row">
+      <div><label>Başlık</label><input id="title" type="text" placeholder="Kitap adı"></div>
+      <div><label>Yazar</label><input id="author" type="text" placeholder="Yazar"></div>
+    </div>
+    <div class="row3" style="margin-top:8px">
+      <div>
+        <label>Tür</label>
+        <select id="genre">
+          <option value="">Seçiniz…</option>
+          <option>Roman</option>
+          <option>Hikaye</option>
+          <option>Şiir</option>
+          <option>Araştırma</option>
+          <option>Biyografi</option>
+          <option>Bilim</option>
+          <option>Çocuk</option>
+        </select>
+      </div>
+      <div><label>Blok (örn. 2A)</label><input id="block" type="text" placeholder="2A"></div>
+      <div><label>Soldan kaçıncı?</label><input id="pos" type="text" inputmode="numeric" placeholder="3"></div>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <div>
+        <label>Öne çıkar?</label>
+        <select id="featured">
+          <option value="no">Hayır</option>
+          <option value="yes">Evet</option>
+        </select>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+      <button id="btnSave" class="primary">Kaydet</button>
+    </div>
+    <div class="help" style="margin-top:8px">Kapak başlık + yazardan otomatik bulunur. Bulunamazsa harfli kapak gösterilir.</div>
+  </div>
+</div>
+
+<div class="modal" id="modalDetail">
+  <div class="panel" id="detailPanel"></div>
+</div>
+
+<div class="modal" id="modalPin">
+  <div class="panel">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+      <strong id="pinTitle">Öğretmen Kodu</strong>
+      <button id="btnClosePin" class="ghost">Kapat</button>
+    </div>
+    <div id="pinBody"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const $=s=>document.querySelector(s);
+function showToast(m){const t=$('#toast');t.textContent=m; t.style.display='block'; setTimeout(()=>t.style.display='none',3500);}
+const FEATURED_LIMIT = 8;
+
+function uuid(){return 'b'+Math.random().toString(36).slice(2)+Date.now();}
+function normalize(s){return (s||'').toString().toLowerCase().normalize('NFKD');}
+function todayISO(){return new Date().toISOString().slice(0,10);}
+function plusDays(n){const d=new Date(); d.setDate(d.getDate()+n); return d.toISOString().slice(0,10);}
+function shortCode(block,pos){ return (block||'').toString().trim().toUpperCase() + (pos||''); }
+function placeholderCover(t){
+  const L=(t||'?').trim().charAt(0).toUpperCase()||'?';
+  const svg=`<svg xmlns='http://www.w3.org/2000/svg' width='300' height='400'>
+    <rect width='100%' height='100%' fill='#efefef'/>
+    <rect x='20' y='20' width='260' height='360' rx='16' ry='16' fill='#ffffff' stroke='#ddd' stroke-width='4'/>
+    <text x='150' y='220' text-anchor='middle' font-size='140' font-family='system-ui' fill='#c59b2d'>${L}</text>
+  </svg>`;
+  return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
+}
+async function findCoverAuto(b){
+  const qp=new URLSearchParams({title:b.title||'', author:b.author||''}).toString();
+  try{
+    const r=await fetch(`https://openlibrary.org/search.json?${qp}`);
+    if(r.ok){
+      const js=await r.json(); const hit=js.docs && js.docs[0];
+      if(hit && hit.cover_i) return `https://covers.openlibrary.org/b/id/${hit.cover_i}-L.jpg`;
+      if(hit && hit.isbn && hit.isbn.length) return `https://covers.openlibrary.org/b/isbn/${hit.isbn[0]}-L.jpg`;
+    }
+  }catch(_){}
+  return '';
+}
+const LS_KEY='mpal_books_v11';
+function loadBooks(){ try{return JSON.parse(localStorage.getItem(LS_KEY)||'[]')}catch(_){return[]} }
+function saveBooks(a){ localStorage.setItem(LS_KEY, JSON.stringify(a)); }
+
+function getPIN(){ return localStorage.getItem('admin_pin')||''; }
+function setPIN(p){ localStorage.setItem('admin_pin', p); }
+function pinViewSet(onOk){
+  $('#pinTitle').textContent='Öğretmen Kodu Oluştur';
+  $('#pinBody').innerHTML=`
+    <div class="row">
+      <div><label>Yeni 4 haneli kod</label><input id="pinA" type="password" inputmode="numeric" maxlength="4" placeholder="1234"></div>
+      <div><label>Tekrar</label><input id="pinB" type="password" inputmode="numeric" maxlength="4" placeholder="1234"></div>
+    </div>
+    <div style="text-align:right;margin-top:10px"><button class="primary" id="btnPinSave">Kaydet</button></div>`;
+  $('#modalPin').style.display='flex';
+  $('#btnPinSave').onclick=()=>{
+    const a=$('#pinA').value.trim(), b=$('#pinB').value.trim();
+    if(!/^\d{4}$/.test(a) || a!==b){ showToast('Kod 4 hane olmalı ve eşleşmeli'); return; }
+    setPIN(a); $('#modalPin').style.display='none'; onOk(true);
+  }
+}
+function pinViewAsk(onOk){
+  $('#pinTitle').textContent='Öğretmen Kodu';
+  $('#pinBody').innerHTML=`
+    <div><label>4 haneli kodu girin</label><input id="pinX" type="password" inputmode="numeric" maxlength="4" placeholder="••••"></div>
+    <div style="text-align:right;margin-top:10px"><button class="primary" id="btnPinOk">Onayla</button></div>
+    <div class="help">Kodu sıfırlamak için site verilerini temizleyin.</div>`;
+  $('#modalPin').style.display='flex';
+  $('#btnPinOk').onclick=()=>{ const x=$('#pinX').value.trim(); if(x===getPIN()){ $('#modalPin').style.display='none'; onOk(true); } else showToast('Kod yanlış'); }
+}
+$('#btnClosePin').onclick=()=>$('#modalPin').style.display='none';
+function requirePin(onOk){ getPIN()? pinViewAsk(onOk) : pinViewSet(onOk); }
+
+const el={
+  railFeatured:$('#railFeatured'), genreSections:$('#genreSections'), railSearch:$('#railSearch'),
+  secFeatured:$('#secFeatured'), secSearch:$('#secSearch'),
+  modalAdd:$('#modalAdd'), btnCloseAdd:$('#btnCloseAdd'), btnSave:$('#btnSave'), modalTitle:$('#modalTitle'),
+  modalDetail:$('#modalDetail'), detailPanel:$('#detailPanel'),
+  btnAdd:$('#btnAdd'),
+  book_id:$('#book_id'), title:$('#title'), author:$('#author'), genre:$('#genre'),
+  block:$('#block'), pos:$('#pos'), featured:$('#featured'),
+  q:$('#q')
+};
+
+function makeCard(b){
+  const c=document.createElement('div'); c.className='card'; c.onclick=()=>openDetail(b.book_id);
+  const img=document.createElement('img'); img.className='cover'; img.src=b.cover||placeholderCover(b.title); img.onerror=()=>{ img.src=placeholderCover(b.title); };
+  const meta=document.createElement('div'); meta.className='meta';
+  const t=document.createElement('div'); t.className='title'; t.textContent=b.title||'';
+  const a=document.createElement('div'); a.className='author'; a.textContent=b.author||'';
+  const foot=document.createElement('div'); foot.className='footer';
+  if(b.loan && b.loan.status==='borrowed'){
+    const status=document.createElement('div'); status.className='status'; status.textContent='Ödünçte: '+(b.loan.student||''); foot.appendChild(status);
+  }else{
+    const spacer=document.createElement('div'); spacer.textContent=''; foot.appendChild(spacer);
+  }
+  const code=document.createElement('div'); code.className='badge'; code.textContent=b.short_code||'-';
+  foot.appendChild(code);
+  meta.appendChild(t); meta.appendChild(a); meta.appendChild(foot);
+  c.appendChild(img); c.appendChild(meta);
+  return c;
+}
+
+function rebuildGenreSections(items){
+  el.genreSections.innerHTML='';
+  const groups = {};
+  items.forEach(b=>{ if(!groups[b.genre]) groups[b.genre]=[]; groups[b.genre].push(b); });
+  Object.keys(groups).forEach(g=>{
+    const arr = groups[g];
+    if(!arr.length) return;
+    const sec = document.createElement('section');
+    sec.className='section';
+    sec.innerHTML = `<div class="section-title">${g} kitapları</div><div class="rail"></div>`;
+    el.genreSections.appendChild(sec);
+    const rail = sec.querySelector('.rail');
+    arr.forEach(b=>rail.appendChild(makeCard(b)));
+  });
+}
+
+function render(){
+  const items=loadBooks();
+  const feats=items.filter(x=>x.featured===true).slice(0, FEATURED_LIMIT);
+  el.railFeatured.innerHTML=''; feats.forEach(b=>el.railFeatured.appendChild(makeCard(b)));
+  rebuildGenreSections(items);
+}
+
+function openDetail(id){
+  const items=loadBooks(); const b=items.find(x=>x.book_id===id); if(!b) return;
+  el.detailPanel.innerHTML=`
+  <div style="display:flex;gap:16px">
+    <img class="cover" style="width:170px;height:230px;border-radius:10px" src="${b.cover||placeholderCover(b.title)}" onerror="this.src='${placeholderCover(b.title)}'">
+    <div style="flex:1">
+      <div style="font-weight:600;font-size:22px">${b.title||''}</div>
+      <div style="color:#6b7280;margin-top:2px">${b.author||''}</div>
+      <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+        <span class="chip">${b.genre||'Tür yok'}</span>
+        <span class="chip">Blok: ${b.block||'-'}</span>
+        <span class="chip">Soldan: ${b.pos||'-'}</span>
+        <span class="chip">Kod: ${b.short_code||'-'}</span>
+      </div>
+      <div style="margin-top:8px;color:#7f1d1d;font-size:14px;">${b.loan&&b.loan.status==='borrowed' ? ('Ödünçte → '+(b.loan.student||'')+' • Teslim: '+(b.loan.due||'')) : ''}</div>
+      <div class="loan">
+        ${b.loan&&b.loan.status==='borrowed'
+          ? `<button id="btnReturn">Teslim Al</button>`
+          : `<input id="studentName" type="text" placeholder="Öğrenci no/isim"><button class="primary" id="btnBorrow">Ödünç Ver (7 gün)</button>`}
+        <button id="btnFeature">${b.featured?'Öne Çıkanlardan Kaldır':'Öne Çıkanlara Ekle'}</button>
+        <button id="btnEdit">Düzenle</button>
+        <button id="btnDelete">Sil</button>
+      </div>
+    </div>
+  </div>`;
+  el.modalDetail.style.display='flex';
+  const br=$('#btnBorrow'), rt=$('#btnReturn'), de=$('#btnDelete'), ed=$('#btnEdit'), ft=$('#btnFeature');
+  if(br) br.onclick=()=>{ const s=$('#studentName').value.trim(); if(!s){showToast('Öğrenci no/isim girin'); return;}
+    b.loan={status:'borrowed',student:s,date:todayISO(),due:plusDays(7)}; saveBooks(items); el.modalDetail.style.display='none'; render(); };
+  if(rt) rt.onclick=()=>{ b.loan=null; saveBooks(items); el.modalDetail.style.display='none'; render(); };
+  de.onclick=()=> requirePin(()=>{ if(confirm('Silinsin mi?')){ const i=items.findIndex(x=>x.book_id===b.book_id); items.splice(i,1); saveBooks(items); el.modalDetail.style.display='none'; render(); } });
+  ed.onclick=()=> requirePin(()=>{ openAdd(b); el.modalDetail.style.display='none'; });
+  ft.onclick=()=> requirePin(()=>{
+    const count = items.filter(x=>x.featured===true).length;
+    if(!b.featured && count>=FEATURED_LIMIT){ showToast('Öne çıkanlarda limit dolu'); return; }
+    b.featured=!b.featured; saveBooks(items); el.modalDetail.style.display='none'; render();
+  });
+}
+el.modalDetail.addEventListener('click', e=>{ if(e.target===el.modalDetail) el.modalDetail.style.display='none'; });
+
+function openAdd(b=null){
+  el.modalTitle.textContent=b?'Kitabı Düzenle':'Kitap Ekle';
+  if(b){
+    el.book_id.value=b.book_id; el.title.value=b.title||''; el.author.value=b.author||'';
+    el.genre.value=b.genre||''; el.block.value=b.block||''; el.pos.value=b.pos||'';
+    el.featured.value=b.featured?'yes':'no';
+  }else{
+    el.book_id.value=''; el.title.value=''; el.author.value='';
+    el.genre.value=''; el.block.value=''; el.pos.value='';
+    el.featured.value='no';
+  }
+  el.modalAdd.style.display='flex';
+}
+function closeAdd(){ el.modalAdd.style.display='none'; }
+el.btnCloseAdd.onclick=closeAdd;
+el.modalAdd.addEventListener('click', e=>{ if(e.target===el.modalAdd) closeAdd(); });
+el.btnAdd.onclick=()=> requirePin(()=>openAdd());
+el.btnSave.onclick=async ()=>{
+  const items=loadBooks();
+  const b={
+    book_id:el.book_id.value||uuid(),
+    title:el.title.value.trim(), author:el.author.value.trim(),
+    genre:el.genre.value, block:el.block.value.trim().toUpperCase(), pos:el.pos.value.trim(),
+    featured:(el.featured.value==='yes')
+  };
+  b.short_code = shortCode(b.block,b.pos);
+  if(!b.title || !b.author || !b.block || !b.pos){ showToast('Başlık, yazar, blok ve pozisyon zorunlu'); return; }
+  if(b.featured){
+    const cnt = items.filter(x=>x.featured===true && x.book_id!==b.book_id).length;
+    if(cnt >= FEATURED_LIMIT){ showToast('Öne çıkan limitine ulaşıldı'); b.featured=false; }
+  }
+  let cover = await findCoverAuto(b);
+  b.cover = cover || placeholderCover(b.title);
+  const idx=items.findIndex(x=>x.book_id===b.book_id);
+  if(idx===-1){ b.added_at=new Date().toISOString(); items.push(b); }
+  else { const prev=items[idx]; b.loan=prev.loan; items[idx]=b; }
+  saveBooks(items); closeAdd(); render();
+};
+
+function renderSearch(){
+  const q=normalize(el.q.value);
+  const items=loadBooks();
+  if(!q){
+    document.getElementById('secFeatured').style.display='block';
+    document.getElementById('genreSections').style.display='block';
+    document.getElementById('secSearch').style.display='none';
+    render();
+    return;
+  }
+  document.getElementById('secFeatured').style.display='none';
+  document.getElementById('genreSections').style.display='none';
+  document.getElementById('secSearch').style.display='block';
+  const list = items.filter(b=>[b.title,b.author,b.genre,b.block,b.short_code].map(normalize).join(' ').includes(q))
+                    .sort((a,b)=>normalize(a.title).localeCompare(normalize(b.title)));
+  el.railSearch.innerHTML='';
+  list.forEach(b=>el.railSearch.appendChild(makeCard(b)));
+}
+el.q.addEventListener('input', renderSearch);
+
+(function init(){
+  if(!loadBooks().length){
+    const demo=[
+      {title:'Suç ve Ceza',author:'Fyodor Dostoyevski',genre:'Roman',block:'2A',pos:'3',short_code:'2A3',featured:true},
+      {title:'Kürk Mantolu Madonna',author:'Sabahattin Ali',genre:'Roman',block:'1B',pos:'1',short_code:'1B1',featured:true},
+      {title:'Dune',author:'Frank Herbert',genre:'Roman',block:'1B',pos:'3',short_code:'1B3',featured:false}
+    ].map(x=>({...x,book_id:uuid(),added_at:new Date().toISOString()}));
+    localStorage.setItem(LS_KEY, JSON.stringify(demo));
+  }
+  render();
+})();
+</script>
+</body>
+</html>
